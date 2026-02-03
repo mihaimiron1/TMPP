@@ -1,27 +1,42 @@
 package com.mihai.library.app;
 
-import com.mihai.library.domain.Book;
-import com.mihai.library.domain.Dvd;
-import com.mihai.library.domain.Magazine;
+import com.mihai.library.factory.*;
 import com.mihai.library.repo.Catalog;
 import com.mihai.library.repo.InMemoryCatalog;
 import com.mihai.library.repo.InMemoryLoanRepository;
 import com.mihai.library.repo.LoanRepository;
-import com.mihai.library.service.DefaultLoanPolicy;
 import com.mihai.library.service.LibraryService;
 import com.mihai.library.service.LoanPolicy;
 
 public final class Main {
     public static void main(String[] args) {
+
+        // ABSTRACT FACTORY
+        LibraryAbstractFactory factory = new StandardLibraryFactory();
+        // Poți schimba cu: new ShortLoanLibraryFactory();
+
         Catalog catalog = new InMemoryCatalog();
         LoanRepository loans = new InMemoryLoanRepository();
-        LoanPolicy policy = new DefaultLoanPolicy();
+        LoanPolicy policy = factory.loanPolicy();
+
         LibraryService service = new LibraryService(catalog, loans, policy);
 
-        // iteme
-        catalog.addItem(new Book("B1", "Clean Code", "Robert C. Martin", "978-0132350884"));
-        catalog.addItem(new Magazine("M1", "National Geographic", 202));
-        catalog.addItem(new Dvd("D1", "Interstellar", 169));
+        // 🔽 FACTORY METHOD folosit prin creatori
+        catalog.addItem(factory.bookCreator().create(
+                ItemRequest.builder(ItemType.BOOK, "B1", "Clean Code")
+                        .author("Robert C. Martin")
+                        .isbn("978-0132350884")
+                        .build()));
+
+        catalog.addItem(factory.magazineCreator().create(
+                ItemRequest.builder(ItemType.MAGAZINE, "M1", "National Geographic")
+                        .issueNumber(202)
+                        .build()));
+
+        catalog.addItem(factory.dvdCreator().create(
+                ItemRequest.builder(ItemType.DVD, "D1", "Interstellar")
+                        .durationMinutes(169)
+                        .build()));
 
         String memberId = "U1";
 
