@@ -9,46 +9,55 @@ import com.mihai.library.service.LibraryService;
 import com.mihai.library.service.LoanPolicy;
 
 public final class Main {
-    public static void main(String[] args) {
+        public static void main(String[] args) {
 
-        // ABSTRACT FACTORY
-        LibraryAbstractFactory factory = new StandardLibraryFactory();
-        // Poți schimba cu: new ShortLoanLibraryFactory();
+                // ABSTRACT FACTORY
+                LibraryAbstractFactory factory = new StandardLibraryFactory();
+                // Poți schimba cu: new ShortLoanLibraryFactory();
 
-        Catalog catalog = new InMemoryCatalog();
-        LoanRepository loans = new InMemoryLoanRepository();
-        LoanPolicy policy = factory.loanPolicy();
+                Catalog catalog = new InMemoryCatalog();
+                LoanRepository loans = new InMemoryLoanRepository();
+                LoanPolicy policy = factory.loanPolicy();
 
-        LibraryService service = new LibraryService(catalog, loans, policy);
+                LibraryService service = new LibraryService(catalog, loans, policy);
 
+<<<<<<< HEAD
         catalog.addItem(factory.bookCreator().create(
                 ItemRequest.builder(ItemType.BOOK, "B1", "Clean Code")
                         .author("Robert C. Martin")
                         .isbn("978-0132350884")
                         .build()));
+=======
+                // 🔽 FACTORY METHOD folosit prin creatori
+                catalog.addItem(factory.bookCreator().create(
+                                ItemRequest.builder(ItemType.BOOK, "B1", "Clean Code")
+                                                .author("Robert C. Martin")
+                                                .isbn("978-0132350884")
+                                                .build()));
+>>>>>>> f2d8b1c10a259bff4bd7809504b7d8334a28b5d2
 
-        catalog.addItem(factory.magazineCreator().create(
-                ItemRequest.builder(ItemType.MAGAZINE, "M1", "National Geographic")
-                        .issueNumber(202)
-                        .build()));
+                catalog.addItem(factory.magazineCreator().create(
+                                ItemRequest.builder(ItemType.MAGAZINE, "M1", "National Geographic")
+                                                .issueNumber(202)
+                                                .build()));
 
-        catalog.addItem(factory.dvdCreator().create(
-                ItemRequest.builder(ItemType.DVD, "D1", "Interstellar")
-                        .durationMinutes(169)
-                        .build()));
+                catalog.addItem(factory.dvdCreator().create(
+                                ItemRequest.builder(ItemType.DVD, "D1", "Interstellar")
+                                                .durationMinutes(169)
+                                                .build()));
 
-        String memberId = "U1";
+                String memberId = "U1";
 
-        System.out.println("=== Borrow B1 ===");
-        System.out.println(service.borrowItem(memberId, "B1"));
+                System.out.println("=== Borrow B1 ===");
+                System.out.println(service.borrowItem(memberId, "B1"));
 
-        System.out.println("\n=== Borrow M1 ===");
-        System.out.println(service.borrowItem(memberId, "M1"));
+                System.out.println("\n=== Borrow M1 ===");
+                System.out.println(service.borrowItem(memberId, "M1"));
 
-        System.out.println("\n=== Return B1 ===");
-        System.out.println(service.returnItem("B1"));
+                System.out.println("\n=== Return B1 ===");
+                System.out.println(service.returnItem("B1"));
 
-        System.out.println("\n=== Loans for member U1 ===");
-        service.listLoansForMember(memberId).forEach(System.out::println);
-    }
+                System.out.println("\n=== Loans for member U1 ===");
+                service.listLoansForMember(memberId).forEach(System.out::println);
+        }
 }
