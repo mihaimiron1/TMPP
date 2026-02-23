@@ -52,7 +52,7 @@ public final class LibraryService {
                 .orElseThrow(() -> new LoanNotFoundException("Nu există împrumut activ pentru item: " + itemId));
 
         activeLoan.markReturned(LocalDate.now());
-        loanRepository.save(activeLoan); // in-memory: suprascrie aceeași referință (ok)
+        loanRepository.save(activeLoan); // in-memory: suprascrie aceeași referința
         return activeLoan;
     }
 

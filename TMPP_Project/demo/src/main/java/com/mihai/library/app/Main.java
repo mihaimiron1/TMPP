@@ -21,7 +21,6 @@ public final class Main {
 
         LibraryService service = new LibraryService(catalog, loans, policy);
 
-        // 🔽 FACTORY METHOD folosit prin creatori
         catalog.addItem(factory.bookCreator().create(
                 ItemRequest.builder(ItemType.BOOK, "B1", "Clean Code")
                         .author("Robert C. Martin")
