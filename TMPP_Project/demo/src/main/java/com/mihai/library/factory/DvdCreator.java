@@ -8,6 +8,10 @@ public final class DvdCreator extends LibraryItemCreator {
     protected LibraryItem createItem(ItemRequest r) {
         if (r.getDurationMinutes() == null || r.getDurationMinutes() <= 0)
             throw new IllegalArgumentException("durationMinutes invalid");
-        return new Dvd(r.getId(), r.getTitle(), r.getDurationMinutes());
+        return Dvd.builder()
+                .id(r.getId())
+                .title(r.getTitle())
+                .durationMinutes(r.getDurationMinutes())
+                .build();
     }
 }

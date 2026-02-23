@@ -10,6 +10,11 @@ public final class BookCreator extends LibraryItemCreator {
             throw new IllegalArgumentException("author invalid");
         if (r.getIsbn() == null || r.getIsbn().isBlank())
             throw new IllegalArgumentException("isbn invalid");
-        return new Book(r.getId(), r.getTitle(), r.getAuthor(), r.getIsbn());
+        return Book.builder()
+                .id(r.getId())
+                .title(r.getTitle())
+                .author(r.getAuthor())
+                .isbn(r.getIsbn())
+                .build();
     }
 }

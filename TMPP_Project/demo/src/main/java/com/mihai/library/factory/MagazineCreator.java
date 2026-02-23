@@ -8,6 +8,10 @@ public final class MagazineCreator extends LibraryItemCreator {
     protected LibraryItem createItem(ItemRequest r) {
         if (r.getIssueNumber() == null || r.getIssueNumber() <= 0)
             throw new IllegalArgumentException("issueNumber invalid");
-        return new Magazine(r.getId(), r.getTitle(), r.getIssueNumber());
+        return Magazine.builder()
+                .id(r.getId())
+                .title(r.getTitle())
+                .issueNumber(r.getIssueNumber())
+                .build();
     }
 }

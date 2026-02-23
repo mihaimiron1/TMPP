@@ -4,11 +4,15 @@ public final class Member {
     private final String id;
     private final String name;
 
-    public Member(String id, String name) {
-        if (id == null || id.isBlank()) throw new IllegalArgumentException("id invalid");
-        if (name == null || name.isBlank()) throw new IllegalArgumentException("name invalid");
-        this.id = id;
-        this.name = name;
+    private Member(Builder builder) {
+        if (builder.id == null || builder.id.isBlank()) throw new IllegalArgumentException("id invalid");
+        if (builder.name == null || builder.name.isBlank()) throw new IllegalArgumentException("name invalid");
+        this.id = builder.id;
+        this.name = builder.name;
+    }
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public String getId() { return id; }
@@ -17,5 +21,24 @@ public final class Member {
     @Override
     public String toString() {
         return "Member{id='" + id + "', name='" + name + "'}";
+    }
+
+    public static final class Builder {
+        private String id;
+        private String name;
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Member build() {
+            return new Member(this);
+        }
     }
 }
