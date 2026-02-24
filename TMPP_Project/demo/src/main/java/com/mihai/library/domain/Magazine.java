@@ -5,7 +5,8 @@ public final class Magazine extends LibraryItem {
 
     private Magazine(Builder builder) {
         super(builder.id, builder.title);
-        if (builder.issueNumber == null || builder.issueNumber <= 0) throw new IllegalArgumentException("issueNumber invalid");
+        if (builder.issueNumber == null || builder.issueNumber <= 0)
+            throw new IllegalArgumentException("issueNumber invalid");
         this.issueNumber = builder.issueNumber;
     }
 
@@ -15,6 +16,15 @@ public final class Magazine extends LibraryItem {
 
     public int getIssueNumber() {
         return issueNumber;
+    }
+
+    @Override
+    public Magazine clone() {
+        Builder builder = new Builder();
+        builder.id(this.getId());
+        builder.title(this.getTitle());
+        builder.issueNumber(this.issueNumber);
+        return builder.build();
     }
 
     @Override

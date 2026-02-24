@@ -7,6 +7,8 @@ import com.mihai.library.repo.InMemoryLoanRepository;
 import com.mihai.library.repo.LoanRepository;
 import com.mihai.library.service.LibraryService;
 import com.mihai.library.service.LoanPolicy;
+import com.mihai.library.domain.LibraryItem;
+// Update the import below to the correct package where LibraryItem is defined
 
 public final class Main {
         public static void main(String[] args) {
@@ -21,21 +23,36 @@ public final class Main {
 
                 LibraryService service = new LibraryService(catalog, loans, policy);
 
-        catalog.addItem(factory.bookCreator().create(
-                ItemRequest.builder(ItemType.BOOK, "B1", "Clean Code")
-                        .author("Robert C. Martin")
-                        .isbn("978-0132350884")
-                        .build()));
-
-                catalog.addItem(factory.magazineCreator().create(
+                LibraryItem book = factory.bookCreator().create(
+                                ItemRequest.builder(ItemType.BOOK, "B1", "Clean Code")
+                                                .author("Robert C. Martin")
+                                                .isbn("978-0132350884")
+                                                .build());
+                LibraryItem magazine = factory.magazineCreator().create(
                                 ItemRequest.builder(ItemType.MAGAZINE, "M1", "National Geographic")
                                                 .issueNumber(202)
-                                                .build()));
-
-                catalog.addItem(factory.dvdCreator().create(
+                                                .build());
+                LibraryItem dvd = factory.dvdCreator().create(
                                 ItemRequest.builder(ItemType.DVD, "D1", "Interstellar")
                                                 .durationMinutes(169)
-                                                .build()));
+                                                .build());
+
+                catalog.addItem(book);
+                catalog.addItem(magazine);
+                catalog.addItem(dvd);
+
+                // Demonstrație clonare
+                LibraryItem clonedBook = book.clone();
+                LibraryItem clonedMagazine = magazine.clone();
+                LibraryItem clonedDvd = dvd.clone();
+
+                System.out.println("\n=== Clonare produse ===");
+                System.out.println("Carte originala:   " + book);
+                System.out.println("Carte clonata:     " + clonedBook);
+                System.out.println("Revista originala: " + magazine);
+                System.out.println("Revista clonata:   " + clonedMagazine);
+                System.out.println("DVD original:      " + dvd);
+                System.out.println("DVD clonat:        " + clonedDvd);
 
                 String memberId = "U1";
 

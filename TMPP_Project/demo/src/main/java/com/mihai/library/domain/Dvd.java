@@ -1,3 +1,4 @@
+
 package com.mihai.library.domain;
 
 public final class Dvd extends LibraryItem {
@@ -5,7 +6,8 @@ public final class Dvd extends LibraryItem {
 
     private Dvd(Builder builder) {
         super(builder.id, builder.title);
-        if (builder.durationMinutes == null || builder.durationMinutes <= 0) throw new IllegalArgumentException("durationMinutes invalid");
+        if (builder.durationMinutes == null || builder.durationMinutes <= 0)
+            throw new IllegalArgumentException("durationMinutes invalid");
         this.durationMinutes = builder.durationMinutes;
     }
 
@@ -15,6 +17,15 @@ public final class Dvd extends LibraryItem {
 
     public int getDurationMinutes() {
         return durationMinutes;
+    }
+
+    @Override
+    public Dvd clone() {
+        Builder builder = new Builder();
+        builder.id(this.getId());
+        builder.title(this.getTitle());
+        builder.durationMinutes(this.durationMinutes);
+        return builder.build();
     }
 
     @Override
