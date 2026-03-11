@@ -8,7 +8,6 @@ import com.mihai.library.repo.LoanRepository;
 import com.mihai.library.service.LibraryService;
 import com.mihai.library.service.LoanPolicy;
 import com.mihai.library.domain.LibraryItem;
-// Update the import below to the correct package where LibraryItem is defined
 
 public final class Main {
         public static void main(String[] args) {
@@ -17,8 +16,8 @@ public final class Main {
                 LibraryAbstractFactory factory = new StandardLibraryFactory();
                 // Poți schimba cu: new ShortLoanLibraryFactory();
 
-                Catalog catalog = new InMemoryCatalog();
-                LoanRepository loans = new InMemoryLoanRepository();
+                Catalog catalog = InMemoryCatalog.getInstance();
+                LoanRepository loans = InMemoryLoanRepository.getInstance();
                 LoanPolicy policy = factory.loanPolicy();
 
                 LibraryService service = new LibraryService(catalog, loans, policy);
@@ -47,10 +46,10 @@ public final class Main {
                 LibraryItem clonedDvd = dvd.clone();
 
                 System.out.println("\n=== Clonare produse ===");
-                System.out.println("Carte originala:   " + book);
-                System.out.println("Carte clonata:     " + clonedBook);
-                System.out.println("Revista originala: " + magazine);
-                System.out.println("Revista clonata:   " + clonedMagazine);
+                System.out.println("Carte originală:   " + book);
+                System.out.println("Carte clonată:     " + clonedBook);
+                System.out.println("Revistă originală: " + magazine);
+                System.out.println("Revistă clonată:   " + clonedMagazine);
                 System.out.println("DVD original:      " + dvd);
                 System.out.println("DVD clonat:        " + clonedDvd);
 
