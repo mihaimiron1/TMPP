@@ -6,8 +6,10 @@ public final class Book extends LibraryItem {
 
     private Book(Builder builder) {
         super(builder.id, builder.title);
-        if (builder.author == null || builder.author.isBlank()) throw new IllegalArgumentException("author invalid");
-        if (builder.isbn == null || builder.isbn.isBlank()) throw new IllegalArgumentException("isbn invalid");
+        if (builder.author == null || builder.author.isBlank())
+            throw new IllegalArgumentException("author invalid");
+        if (builder.isbn == null || builder.isbn.isBlank())
+            throw new IllegalArgumentException("isbn invalid");
         this.author = builder.author;
         this.isbn = builder.isbn;
     }
@@ -25,6 +27,16 @@ public final class Book extends LibraryItem {
     }
 
     @Override
+    public Book clone() {
+        Builder builder = new Builder();
+        builder.id(this.getId());
+        builder.title(this.getTitle());
+        builder.author(this.author);
+        builder.isbn(this.isbn);
+        return builder.build();
+    }
+
+    @Override
     public String getType() {
         return "BOOK";
     }
@@ -34,7 +46,7 @@ public final class Book extends LibraryItem {
         return super.toString().replace("}", "") +
                 ", author='" + author + "', isbn='" + isbn + "'}";
     }
-  
+
     public static final class Builder {
         private String id;
         private String title;

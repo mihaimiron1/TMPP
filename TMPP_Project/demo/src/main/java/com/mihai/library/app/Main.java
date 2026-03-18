@@ -8,10 +8,10 @@ import com.mihai.library.repo.Catalog;
 import com.mihai.library.repo.LoanRepository;
 import com.mihai.library.service.LibraryService;
 import com.mihai.library.service.LoanPolicy;
+
 import com.mihai.library.service.exceptions.LoanNotFoundException;
-
+import com.mihai.library.domain.LibraryItem;
 import java.nio.file.Path;
-
 public final class Main {
         private static final Path DATA_DIRECTORY = Path.of("data");
         private static final Path CATALOG_FILE = DATA_DIRECTORY.resolve("catalog.db");
@@ -21,8 +21,10 @@ public final class Main {
                 LibraryAbstractFactory factory = new StandardLibraryFactory();
                 // You can switch to: new ShortLoanLibraryFactory();
 
+
                 Catalog catalog = createCatalog();
                 LoanRepository loans = createLoanRepository();
+
                 LoanPolicy policy = factory.loanPolicy();
 
                 LibraryService service = new LibraryService(catalog, loans, policy);

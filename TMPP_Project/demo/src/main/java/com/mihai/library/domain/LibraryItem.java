@@ -1,14 +1,26 @@
 package com.mihai.library.domain;
 
-public abstract class LibraryItem {
+public abstract class LibraryItem implements Prototype<LibraryItem>, Cloneable {
+
     private final String id;
     private final String title;
 
     protected LibraryItem(String id, String title) {
-        if (id == null || id.isBlank()) throw new IllegalArgumentException("id invalid");
-        if (title == null || title.isBlank()) throw new IllegalArgumentException("title invalid");
+        if (id == null || id.isBlank())
+            throw new IllegalArgumentException("id invalid");
+        if (title == null || title.isBlank())
+            throw new IllegalArgumentException("title invalid");
         this.id = id;
         this.title = title;
+    }
+
+    @Override
+    public LibraryItem clone() {
+        try {
+            return (LibraryItem) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 
     public final String getId() {
