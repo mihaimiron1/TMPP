@@ -1,6 +1,7 @@
 package com.mihai.library.service;
 
 import com.mihai.library.domain.LibraryItem;
+import com.mihai.library.domain.LibraryItemGroup;
 import com.mihai.library.domain.Loan;
 import com.mihai.library.repo.Catalog;
 import com.mihai.library.repo.LoanRepository;
@@ -31,6 +32,7 @@ public final class LibraryService {
         String validatedItemId = requireValidId(itemId, "itemId");
 
         LibraryItem item = findItemOrThrow(validatedItemId);
+        ensureItemCanBeBorrowed(item);
         ensureItemIsAvailable(validatedItemId);
 
         LocalDate now = LocalDate.now();
@@ -72,6 +74,12 @@ public final class LibraryService {
         loanRepository.findActiveLoanByItemId(itemId).ifPresent(loan -> {
             throw new ItemAlreadyLoanedException("Item deja împrumutat: " + itemId);
         });
+    }
+
+    private void ensureItemCanBeBorrowed(LibraryItem item) {
+        if (item instanceof LibraryItemGroup) {
+            throw new IllegalArgumentException("Composite items cannot be borrowed directly: " + item.getId());
+        }
     }
 
     private Loan findActiveLoanOrThrow(String itemId) {

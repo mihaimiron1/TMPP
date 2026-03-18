@@ -3,37 +3,40 @@ package com.mihai.library.adapter.codec;
 import com.mihai.library.domain.Book;
 import com.mihai.library.domain.Dvd;
 import com.mihai.library.domain.LibraryItem;
+import com.mihai.library.domain.LibraryItemGroup;
 import com.mihai.library.domain.Magazine;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public final class LibraryItemRecordCodec {
+    private static final String FIELD_SEPARATOR = "|";
+    private static final String GROUP_CHILD_SEPARATOR = ",";
+    private static final String TYPE_BOOK = "BOOK";
+    private static final String TYPE_MAGAZINE = "MAGAZINE";
+    private static final String TYPE_DVD = "DVD";
+    private static final String TYPE_GROUP = "GROUP";
+
     public String encode(LibraryItem item) {
         if (item == null) {
             throw new IllegalArgumentException("item null");
         }
 
         if (item instanceof Book book) {
-            return String.join("|",
-                    "BOOK",
-                    Base64Codec.encode(book.getId()),
-                    Base64Codec.encode(book.getTitle()),
-                    Base64Codec.encode(book.getAuthor()),
-                    Base64Codec.encode(book.getIsbn()));
+            return encodeBook(book);
         }
 
         if (item instanceof Magazine magazine) {
-            return String.join("|",
-                    "MAGAZINE",
-                    Base64Codec.encode(magazine.getId()),
-                    Base64Codec.encode(magazine.getTitle()),
-                    String.valueOf(magazine.getIssueNumber()));
+            return encodeMagazine(magazine);
         }
 
         if (item instanceof Dvd dvd) {
-            return String.join("|",
-                    "DVD",
-                    Base64Codec.encode(dvd.getId()),
-                    Base64Codec.encode(dvd.getTitle()),
-                    String.valueOf(dvd.getDurationMinutes()));
+            return encodeDvd(dvd);
+        }
+
+        if (item instanceof LibraryItemGroup group) {
+            return encodeGroup(group);
         }
 
         throw new IllegalArgumentException("Unsupported item type: " + item.getClass().getSimpleName());
@@ -48,15 +51,54 @@ public final class LibraryItemRecordCodec {
         String type = parts[0];
 
         return switch (type) {
-            case "BOOK" -> decodeBook(parts);
-            case "MAGAZINE" -> decodeMagazine(parts);
-            case "DVD" -> decodeDvd(parts);
+            case TYPE_BOOK -> decodeBook(parts);
+            case TYPE_MAGAZINE -> decodeMagazine(parts);
+            case TYPE_DVD -> decodeDvd(parts);
+            case TYPE_GROUP -> decodeGroup(parts);
             default -> throw new IllegalArgumentException("Unknown item type in record: " + type);
         };
     }
 
+    private String encodeBook(Book book) {
+        return String.join(FIELD_SEPARATOR,
+                TYPE_BOOK,
+                Base64Codec.encode(book.getId()),
+                Base64Codec.encode(book.getTitle()),
+                Base64Codec.encode(book.getAuthor()),
+                Base64Codec.encode(book.getIsbn()));
+    }
+
+    private String encodeMagazine(Magazine magazine) {
+        return String.join(FIELD_SEPARATOR,
+                TYPE_MAGAZINE,
+                Base64Codec.encode(magazine.getId()),
+                Base64Codec.encode(magazine.getTitle()),
+                String.valueOf(magazine.getIssueNumber()));
+    }
+
+    private String encodeDvd(Dvd dvd) {
+        return String.join(FIELD_SEPARATOR,
+                TYPE_DVD,
+                Base64Codec.encode(dvd.getId()),
+                Base64Codec.encode(dvd.getTitle()),
+                String.valueOf(dvd.getDurationMinutes()));
+    }
+
+    private String encodeGroup(LibraryItemGroup group) {
+        String encodedChildren = group.getChildren().stream()
+                .map(this::encode)
+                .map(Base64Codec::encode)
+                .collect(Collectors.joining(GROUP_CHILD_SEPARATOR));
+
+        return String.join(FIELD_SEPARATOR,
+                TYPE_GROUP,
+                Base64Codec.encode(group.getId()),
+                Base64Codec.encode(group.getTitle()),
+                encodedChildren);
+    }
+
     private static Book decodeBook(String[] parts) {
-        requireLength(parts, 5, "BOOK");
+        requireLength(parts, 5, TYPE_BOOK);
         return Book.builder()
                 .id(Base64Codec.decode(parts[1]))
                 .title(Base64Codec.decode(parts[2]))
@@ -66,7 +108,7 @@ public final class LibraryItemRecordCodec {
     }
 
     private static Magazine decodeMagazine(String[] parts) {
-        requireLength(parts, 4, "MAGAZINE");
+        requireLength(parts, 4, TYPE_MAGAZINE);
         return Magazine.builder()
                 .id(Base64Codec.decode(parts[1]))
                 .title(Base64Codec.decode(parts[2]))
@@ -75,12 +117,37 @@ public final class LibraryItemRecordCodec {
     }
 
     private static Dvd decodeDvd(String[] parts) {
-        requireLength(parts, 4, "DVD");
+        requireLength(parts, 4, TYPE_DVD);
         return Dvd.builder()
                 .id(Base64Codec.decode(parts[1]))
                 .title(Base64Codec.decode(parts[2]))
                 .durationMinutes(parsePositiveInt(parts[3], "durationMinutes"))
                 .build();
+    }
+
+    private LibraryItemGroup decodeGroup(String[] parts) {
+        requireLength(parts, 4, TYPE_GROUP);
+
+        LibraryItemGroup group = LibraryItemGroup.builder()
+                .id(Base64Codec.decode(parts[1]))
+                .title(Base64Codec.decode(parts[2]))
+                .build();
+
+        for (String encodedChild : decodeChildRecordTokens(parts[3])) {
+            group.addChild(decode(Base64Codec.decode(encodedChild)));
+        }
+
+        return group;
+    }
+
+    private static List<String> decodeChildRecordTokens(String childrenField) {
+        if (childrenField == null || childrenField.isBlank()) {
+            return List.of();
+        }
+
+        return Arrays.stream(childrenField.split(GROUP_CHILD_SEPARATOR))
+                .filter(token -> !token.isBlank())
+                .toList();
     }
 
     private static int parsePositiveInt(String rawValue, String fieldName) {

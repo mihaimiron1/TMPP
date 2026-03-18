@@ -9,5 +9,7 @@ public interface LibraryAbstractFactory {
 
     LibraryItemCreator dvdCreator();
 
+    LibraryItemCreator groupCreator();
+
     LoanPolicy loanPolicy(); // obiect înrudit (familie)
 }

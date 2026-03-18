@@ -2,6 +2,7 @@ package com.mihai.library.adapter;
 
 import com.mihai.library.adapter.storage.FileStorage;
 import com.mihai.library.domain.Book;
+import com.mihai.library.domain.LibraryItemGroup;
 import com.mihai.library.domain.Loan;
 import com.mihai.library.repo.Catalog;
 import com.mihai.library.repo.LoanRepository;
@@ -16,6 +17,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class LibraryServiceAdapterIntegrationTest {
 
@@ -60,5 +62,29 @@ public class LibraryServiceAdapterIntegrationTest {
         Loan persistedAfterReturn = thirdService.listLoansForMember("U1").get(0);
         assertFalse(persistedAfterReturn.isActive());
         assertNotNull(persistedAfterReturn.getReturnDate());
+    }
+
+    @Test
+    void borrowItem_rejectsCompositeGroup() {
+        Path catalogFile = tempDir.resolve("catalog.db");
+        Path loansFile = tempDir.resolve("loans.db");
+
+        Catalog catalog = new FileCatalogAdapter(new FileStorage(catalogFile));
+        LoanRepository loans = new FileLoanRepositoryAdapter(new FileStorage(loansFile));
+
+        catalog.addItem(LibraryItemGroup.builder()
+                .id("G1")
+                .title("Starter Kit")
+                .child(Book.builder()
+                        .id("B1")
+                        .title("Clean Code")
+                        .author("Robert C. Martin")
+                        .isbn("978-0132350884")
+                        .build())
+                .build());
+
+        LibraryService service = new LibraryService(catalog, loans, new DefaultLoanPolicy());
+
+        assertThrows(IllegalArgumentException.class, () -> service.borrowItem("U1", "G1"));
     }
 }

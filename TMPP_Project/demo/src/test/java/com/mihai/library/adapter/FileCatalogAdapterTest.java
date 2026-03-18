@@ -4,6 +4,7 @@ import com.mihai.library.adapter.storage.FileStorage;
 import com.mihai.library.domain.Book;
 import com.mihai.library.domain.Dvd;
 import com.mihai.library.domain.LibraryItem;
+import com.mihai.library.domain.LibraryItemGroup;
 import com.mihai.library.domain.Magazine;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -72,5 +73,45 @@ public class FileCatalogAdapterTest {
         assertTrue(allItems.stream().anyMatch(item -> "BOOK".equals(item.getType())));
         assertTrue(allItems.stream().anyMatch(item -> "MAGAZINE".equals(item.getType())));
         assertTrue(allItems.stream().anyMatch(item -> "DVD".equals(item.getType())));
+    }
+
+    @Test
+    void addItem_persistsCompositeHierarchyAcrossAdapterInstances() {
+        Path storageFile = tempDir.resolve("catalog.db");
+        FileCatalogAdapter writer = new FileCatalogAdapter(new FileStorage(storageFile));
+
+        LibraryItemGroup nestedGroup = LibraryItemGroup.builder()
+                .id("G2")
+                .title("Reading Bundle")
+                .child(Magazine.builder()
+                        .id("M1")
+                        .title("National Geographic")
+                        .issueNumber(202)
+                        .build())
+                .build();
+
+        LibraryItemGroup rootGroup = LibraryItemGroup.builder()
+                .id("G1")
+                .title("Starter Kit")
+                .child(Book.builder()
+                        .id("B1")
+                        .title("Clean Code")
+                        .author("Robert C. Martin")
+                        .isbn("978-0132350884")
+                        .build())
+                .child(nestedGroup)
+                .build();
+
+        writer.addItem(rootGroup);
+
+        FileCatalogAdapter reader = new FileCatalogAdapter(new FileStorage(storageFile));
+        LibraryItemGroup loadedGroup = assertInstanceOf(LibraryItemGroup.class, reader.findById("G1").orElseThrow());
+
+        assertEquals(2, loadedGroup.getChildren().size());
+        assertInstanceOf(Book.class, loadedGroup.getChildren().get(0));
+
+        LibraryItemGroup loadedNested = assertInstanceOf(LibraryItemGroup.class, loadedGroup.getChildren().get(1));
+        assertEquals(1, loadedNested.getChildren().size());
+        assertInstanceOf(Magazine.class, loadedNested.getChildren().get(0));
     }
 }

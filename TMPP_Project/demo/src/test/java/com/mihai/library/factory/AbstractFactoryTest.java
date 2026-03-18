@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import com.mihai.library.domain.Book;
 import com.mihai.library.domain.LibraryItem;
+import com.mihai.library.domain.LibraryItemGroup;
 import com.mihai.library.service.LoanPolicy;
 
 import java.time.LocalDate;
@@ -24,6 +25,12 @@ public class AbstractFactoryTest {
 
         assertTrue(item instanceof Book);
 
+        LibraryItem group = factory.groupCreator().create(
+                ItemRequest.builder(ItemType.GROUP, "G1", "Starter Bundle")
+                        .child(item)
+                        .build());
+        assertTrue(group instanceof LibraryItemGroup);
+
         LoanPolicy policy = factory.loanPolicy();
         LocalDate due = policy.computeDueDate(item, LocalDate.of(2026, 2, 3));
         assertEquals(LocalDate.of(2026, 2, 17), due); // 14 zile
@@ -40,5 +47,11 @@ public class AbstractFactoryTest {
 
         LocalDate due = factory.loanPolicy().computeDueDate(item, LocalDate.of(2026, 2, 3));
         assertEquals(LocalDate.of(2026, 2, 10), due); // 7 zile
+
+        LibraryItem group = factory.groupCreator().create(
+                ItemRequest.builder(ItemType.GROUP, "G1", "Starter Bundle")
+                        .child(item)
+                        .build());
+        assertTrue(group instanceof LibraryItemGroup);
     }
 }

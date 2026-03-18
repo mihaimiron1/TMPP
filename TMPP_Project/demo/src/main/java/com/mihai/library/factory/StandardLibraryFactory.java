@@ -21,6 +21,11 @@ public final class StandardLibraryFactory implements LibraryAbstractFactory {
     }
 
     @Override
+    public LibraryItemCreator groupCreator() {
+        return new GroupCreator();
+    }
+
+    @Override
     public LoanPolicy loanPolicy() {
         return new DefaultLoanPolicy();
     } // 14 zile (cum ai)

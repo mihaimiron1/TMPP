@@ -1,5 +1,10 @@
 package com.mihai.library.factory;
 
+import com.mihai.library.domain.LibraryItem;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public final class ItemRequest {
     private final ItemType type;
     private final String id;
@@ -10,6 +15,7 @@ public final class ItemRequest {
     private final String isbn;
     private final Integer issueNumber;
     private final Integer durationMinutes;
+    private final List<LibraryItem> children;
 
     private ItemRequest(Builder b) {
         this.type = b.type;
@@ -19,6 +25,7 @@ public final class ItemRequest {
         this.isbn = b.isbn;
         this.issueNumber = b.issueNumber;
         this.durationMinutes = b.durationMinutes;
+        this.children = List.copyOf(b.children);
     }
 
     public ItemType getType() {
@@ -49,6 +56,10 @@ public final class ItemRequest {
         return durationMinutes;
     }
 
+    public List<LibraryItem> getChildren() {
+        return children;
+    }
+
     public static Builder builder(ItemType type, String id, String title) {
         return new Builder(type, id, title);
     }
@@ -62,6 +73,7 @@ public final class ItemRequest {
         private String isbn;
         private Integer issueNumber;
         private Integer durationMinutes;
+        private final List<LibraryItem> children = new ArrayList<>();
 
         private Builder(ItemType type, String id, String title) {
             this.type = type;
@@ -86,6 +98,24 @@ public final class ItemRequest {
 
         public Builder durationMinutes(int durationMinutes) {
             this.durationMinutes = durationMinutes;
+            return this;
+        }
+
+        public Builder child(LibraryItem child) {
+            if (child == null) {
+                throw new IllegalArgumentException("child null");
+            }
+            this.children.add(child);
+            return this;
+        }
+
+        public Builder children(List<LibraryItem> children) {
+            if (children == null) {
+                throw new IllegalArgumentException("children null");
+            }
+            for (LibraryItem child : children) {
+                child(child);
+            }
             return this;
         }
 

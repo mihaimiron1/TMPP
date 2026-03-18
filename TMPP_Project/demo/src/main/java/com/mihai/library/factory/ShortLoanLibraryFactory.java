@@ -23,6 +23,11 @@ public final class ShortLoanLibraryFactory implements LibraryAbstractFactory {
     }
 
     @Override
+    public LibraryItemCreator groupCreator() {
+        return new GroupCreator();
+    }
+
+    @Override
     public LoanPolicy loanPolicy() {
         // policy “din fabrică” (familie)
         return new LoanPolicy() {
