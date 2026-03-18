@@ -27,37 +27,55 @@ public final class LibraryService {
     }
 
     public Loan borrowItem(String memberId, String itemId) {
-        if (memberId == null || memberId.isBlank()) throw new IllegalArgumentException("memberId invalid");
-        if (itemId == null || itemId.isBlank()) throw new IllegalArgumentException("itemId invalid");
+        String validatedMemberId = requireValidId(memberId, "memberId");
+        String validatedItemId = requireValidId(itemId, "itemId");
 
-        LibraryItem item = catalog.findById(itemId)
-                .orElseThrow(() -> new ItemNotFoundException("Item inexistent: " + itemId));
-
-        loanRepository.findActiveLoanByItemId(itemId).ifPresent(l -> {
-            throw new ItemAlreadyLoanedException("Item deja împrumutat: " + itemId);
-        });
+        LibraryItem item = findItemOrThrow(validatedItemId);
+        ensureItemIsAvailable(validatedItemId);
 
         LocalDate now = LocalDate.now();
         LocalDate due = loanPolicy.computeDueDate(item, now);
 
-        Loan loan = new Loan(UUID.randomUUID().toString(), memberId, itemId, now, due);
+        Loan loan = new Loan(UUID.randomUUID().toString(), validatedMemberId, validatedItemId, now, due);
         loanRepository.save(loan);
         return loan;
     }
 
     public Loan returnItem(String itemId) {
-        if (itemId == null || itemId.isBlank()) throw new IllegalArgumentException("itemId invalid");
+        String validatedItemId = requireValidId(itemId, "itemId");
 
-        Loan activeLoan = loanRepository.findActiveLoanByItemId(itemId)
-                .orElseThrow(() -> new LoanNotFoundException("Nu există împrumut activ pentru item: " + itemId));
+        Loan activeLoan = findActiveLoanOrThrow(validatedItemId);
 
         activeLoan.markReturned(LocalDate.now());
-        loanRepository.save(activeLoan); // in-memory: suprascrie aceeași referința
+        loanRepository.save(activeLoan);
         return activeLoan;
     }
 
     public List<Loan> listLoansForMember(String memberId) {
-        if (memberId == null || memberId.isBlank()) throw new IllegalArgumentException("memberId invalid");
-        return loanRepository.findByMemberId(memberId);
+        String validatedMemberId = requireValidId(memberId, "memberId");
+        return loanRepository.findByMemberId(validatedMemberId);
+    }
+
+    private static String requireValidId(String value, String name) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(name + " invalid");
+        }
+        return value;
+    }
+
+    private LibraryItem findItemOrThrow(String itemId) {
+        return catalog.findById(itemId)
+                .orElseThrow(() -> new ItemNotFoundException("Item inexistent: " + itemId));
+    }
+
+    private void ensureItemIsAvailable(String itemId) {
+        loanRepository.findActiveLoanByItemId(itemId).ifPresent(loan -> {
+            throw new ItemAlreadyLoanedException("Item deja împrumutat: " + itemId);
+        });
+    }
+
+    private Loan findActiveLoanOrThrow(String itemId) {
+        return loanRepository.findActiveLoanByItemId(itemId)
+                .orElseThrow(() -> new LoanNotFoundException("Nu există împrumut activ pentru item: " + itemId));
     }
 }

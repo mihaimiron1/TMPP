@@ -1,9 +1,12 @@
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\service\DefaultLoanPolicy.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\repo\LoanRepository.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\factory\BookCreator.java
+D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\adapter\codec\Base64Codec.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\service\exceptions\ItemNotFoundException.java
+D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\adapter\codec\LibraryItemRecordCodec.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\factory\DvdCreator.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\domain\Magazine.java
+D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\adapter\FileLoanRepositoryAdapter.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\repo\InMemoryLoanRepository.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\service\LoanPolicy.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\domain\Dvd.java
@@ -11,6 +14,7 @@ D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\domain\LibraryIte
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\service\exceptions\ItemAlreadyLoanedException.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\app\Main.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\factory\MagazineCreator.java
+D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\adapter\storage\FileStorage.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\factory\ItemRequest.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\repo\Catalog.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\repo\InMemoryCatalog.java
@@ -21,6 +25,8 @@ D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\factory\LibraryIt
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\domain\Book.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\factory\ShortLoanLibraryFactory.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\service\exceptions\LoanNotFoundException.java
+D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\adapter\codec\LoanRecordCodec.java
+D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\adapter\FileCatalogAdapter.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\domain\Loan.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\domain\Member.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\factory\ItemType.java

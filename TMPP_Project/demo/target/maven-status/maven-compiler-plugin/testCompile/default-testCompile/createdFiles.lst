@@ -1,2 +1,3 @@
+com\mihai\library\adapter\LibraryServiceAdapterIntegrationTest.class
 com\mihai\library\factory\FactoryMethodTest.class
 com\mihai\library\factory\AbstractFactoryTest.class
