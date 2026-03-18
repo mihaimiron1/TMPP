@@ -1,5 +1,6 @@
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\service\DefaultLoanPolicy.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\repo\LoanRepository.java
+D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\domain\Prototype.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\factory\BookCreator.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\adapter\codec\Base64Codec.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\service\exceptions\ItemNotFoundException.java
