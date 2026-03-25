@@ -5,8 +5,10 @@ public final class Member {
     private final String name;
 
     private Member(Builder builder) {
-        if (builder.id == null || builder.id.isBlank()) throw new IllegalArgumentException("id invalid");
-        if (builder.name == null || builder.name.isBlank()) throw new IllegalArgumentException("name invalid");
+        if (builder.id == null || builder.id.isBlank())
+            throw new IllegalArgumentException("id invalid");
+        if (builder.name == null || builder.name.isBlank())
+            throw new IllegalArgumentException("name invalid");
         this.id = builder.id;
         this.name = builder.name;
     }
@@ -15,12 +17,17 @@ public final class Member {
         return new Builder();
     }
 
-    public String getId() { return id; }
-    public String getName() { return name; }
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
 
     @Override
     public String toString() {
-        return "Member{id='" + id + "', name='" + name + "'}";
+        return "Member{id='" + id + "', name='" + getName() + "'}";
     }
 
     public static final class Builder {

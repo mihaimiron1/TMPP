@@ -1,7 +1,10 @@
 package com.mihai.library.domain;
 
+import com.mihai.library.flyweight.AuthorFlyweight;
+import com.mihai.library.flyweight.AuthorFlyweightFactory;
+
 public final class Book extends LibraryItem {
-    private final String author;
+    private final AuthorFlyweight authorFlyweight;
     private final String isbn;
 
     private Book(Builder builder) {
@@ -10,7 +13,7 @@ public final class Book extends LibraryItem {
             throw new IllegalArgumentException("author invalid");
         if (builder.isbn == null || builder.isbn.isBlank())
             throw new IllegalArgumentException("isbn invalid");
-        this.author = builder.author;
+        this.authorFlyweight = AuthorFlyweightFactory.getFlyweight(builder.author);
         this.isbn = builder.isbn;
     }
 
@@ -19,11 +22,15 @@ public final class Book extends LibraryItem {
     }
 
     public String getAuthor() {
-        return author;
+        return authorFlyweight.name();
     }
 
     public String getIsbn() {
         return isbn;
+    }
+
+    AuthorFlyweight authorFlyweight() {
+        return authorFlyweight;
     }
 
     @Override
@@ -31,8 +38,8 @@ public final class Book extends LibraryItem {
         Builder builder = new Builder();
         builder.id(this.getId());
         builder.title(this.getTitle());
-        builder.author(this.author);
-        builder.isbn(this.isbn);
+        builder.author(this.getAuthor());
+        builder.isbn(this.getIsbn());
         return builder.build();
     }
 
@@ -44,7 +51,7 @@ public final class Book extends LibraryItem {
     @Override
     public String toString() {
         return super.toString().replace("}", "") +
-                ", author='" + author + "', isbn='" + isbn + "'}";
+                ", author='" + getAuthor() + "', isbn='" + getIsbn() + "'}";
     }
 
     public static final class Builder {

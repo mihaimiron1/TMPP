@@ -35,6 +35,6 @@ public abstract class LibraryItem implements Prototype<LibraryItem>, Cloneable {
 
     @Override
     public String toString() {
-        return getType() + "{id='" + id + "', title='" + title + "'}";
+        return getType() + "{id='" + id + "', title='" + getTitle() + "'}";
     }
 }
