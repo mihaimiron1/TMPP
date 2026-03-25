@@ -8,6 +8,10 @@ import com.mihai.library.domain.Loan;
 import com.mihai.library.factory.ItemRequest;
 import com.mihai.library.factory.ItemType;
 import com.mihai.library.factory.LibraryAbstractFactory;
+import com.mihai.library.notification.BorrowLoanNotification;
+import com.mihai.library.notification.ConsoleNotificationChannel;
+import com.mihai.library.notification.LoanNotification;
+import com.mihai.library.notification.ReturnLoanNotification;
 import com.mihai.library.repo.Catalog;
 import com.mihai.library.repo.LoanRepository;
 import com.mihai.library.service.LibraryService;
@@ -23,6 +27,20 @@ public final class LibraryFacade {
     private final LibraryService libraryService;
 
     public LibraryFacade(Catalog catalog, LoanRepository loanRepository, LibraryAbstractFactory factory) {
+        this(
+            catalog,
+            loanRepository,
+            factory,
+            null,
+            null);
+        }
+
+        public LibraryFacade(
+            Catalog catalog,
+            LoanRepository loanRepository,
+            LibraryAbstractFactory factory,
+            LoanNotification borrowNotification,
+            LoanNotification returnNotification) {
         if (catalog == null) {
             throw new IllegalArgumentException("catalog null");
         }
@@ -35,7 +53,17 @@ public final class LibraryFacade {
 
         this.catalog = catalog;
         this.factory = factory;
-        this.libraryService = new LibraryService(catalog, loanRepository, factory.loanPolicy());
+        if (borrowNotification == null || returnNotification == null) {
+            this.libraryService = new LibraryService(catalog, loanRepository, factory.loanPolicy());
+            return;
+        }
+
+        this.libraryService = new LibraryService(
+                catalog,
+                loanRepository,
+                factory.loanPolicy(),
+                borrowNotification,
+                returnNotification);
     }
 
     public static LibraryFacade fileBacked(Path dataDirectory, LibraryAbstractFactory factory) {
@@ -48,7 +76,12 @@ public final class LibraryFacade {
 
         Catalog catalog = new FileCatalogAdapter(new FileStorage(catalogFile));
         LoanRepository loanRepository = new FileLoanRepositoryAdapter(new FileStorage(loansFile));
-        return new LibraryFacade(catalog, loanRepository, factory);
+        return new LibraryFacade(
+                catalog,
+                loanRepository,
+                factory,
+                new BorrowLoanNotification(new ConsoleNotificationChannel()),
+                new ReturnLoanNotification(new ConsoleNotificationChannel()));
     }
 
     public Loan borrowItem(String memberId, String itemId) {

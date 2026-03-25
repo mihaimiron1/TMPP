@@ -3,6 +3,10 @@ package com.mihai.library.service;
 import com.mihai.library.domain.LibraryItem;
 import com.mihai.library.domain.LibraryItemGroup;
 import com.mihai.library.domain.Loan;
+import com.mihai.library.notification.BorrowLoanNotification;
+import com.mihai.library.notification.LoanNotification;
+import com.mihai.library.notification.NoOpNotificationChannel;
+import com.mihai.library.notification.ReturnLoanNotification;
 import com.mihai.library.repo.Catalog;
 import com.mihai.library.repo.LoanRepository;
 import com.mihai.library.service.exceptions.ItemAlreadyLoanedException;
@@ -17,14 +21,34 @@ public final class LibraryService {
     private final Catalog catalog;
     private final LoanRepository loanRepository;
     private final LoanPolicy loanPolicy;
+    private final LoanNotification borrowNotification;
+    private final LoanNotification returnNotification;
 
     public LibraryService(Catalog catalog, LoanRepository loanRepository, LoanPolicy loanPolicy) {
+        this(
+                catalog,
+                loanRepository,
+                loanPolicy,
+                new BorrowLoanNotification(new NoOpNotificationChannel()),
+                new ReturnLoanNotification(new NoOpNotificationChannel()));
+    }
+
+    public LibraryService(
+            Catalog catalog,
+            LoanRepository loanRepository,
+            LoanPolicy loanPolicy,
+            LoanNotification borrowNotification,
+            LoanNotification returnNotification) {
         if (catalog == null) throw new IllegalArgumentException("catalog null");
         if (loanRepository == null) throw new IllegalArgumentException("loanRepository null");
         if (loanPolicy == null) throw new IllegalArgumentException("loanPolicy null");
+        if (borrowNotification == null) throw new IllegalArgumentException("borrowNotification null");
+        if (returnNotification == null) throw new IllegalArgumentException("returnNotification null");
         this.catalog = catalog;
         this.loanRepository = loanRepository;
         this.loanPolicy = loanPolicy;
+        this.borrowNotification = borrowNotification;
+        this.returnNotification = returnNotification;
     }
 
     public Loan borrowItem(String memberId, String itemId) {
@@ -40,6 +64,7 @@ public final class LibraryService {
 
         Loan loan = new Loan(UUID.randomUUID().toString(), validatedMemberId, validatedItemId, now, due);
         loanRepository.save(loan);
+        borrowNotification.sendForLoan(loan);
         return loan;
     }
 
@@ -50,6 +75,7 @@ public final class LibraryService {
 
         activeLoan.markReturned(LocalDate.now());
         loanRepository.save(activeLoan);
+        returnNotification.sendForLoan(activeLoan);
         return activeLoan;
     }
 
