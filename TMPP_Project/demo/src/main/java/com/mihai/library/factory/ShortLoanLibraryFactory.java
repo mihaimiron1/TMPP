@@ -2,6 +2,8 @@ package com.mihai.library.factory;
 
 import com.mihai.library.domain.LibraryItem;
 import com.mihai.library.service.LoanPolicy;
+import com.mihai.library.service.decorator.ItemTypeLoanPolicyDecorator;
+import com.mihai.library.service.decorator.WeekendAdjustmentLoanPolicyDecorator;
 
 import java.time.LocalDate;
 
@@ -30,12 +32,15 @@ public final class ShortLoanLibraryFactory implements LibraryAbstractFactory {
     @Override
     public LoanPolicy loanPolicy() {
         // policy “din fabrică” (familie)
-        return new LoanPolicy() {
+        LoanPolicy basePolicy = new LoanPolicy() {
             @Override
             public LocalDate computeDueDate(LibraryItem item, LocalDate loanDate) {
                 // minim: împrumut mai scurt pentru toate
                 return loanDate.plusDays(7);
             }
         };
+
+        LoanPolicy itemAwarePolicy = new ItemTypeLoanPolicyDecorator(basePolicy);
+        return new WeekendAdjustmentLoanPolicyDecorator(itemAwarePolicy);
     }
 }

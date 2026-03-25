@@ -3,6 +3,7 @@ package com.mihai.library.factory;
 import org.junit.jupiter.api.Test;
 
 import com.mihai.library.domain.Book;
+import com.mihai.library.domain.Dvd;
 import com.mihai.library.domain.LibraryItem;
 import com.mihai.library.domain.LibraryItemGroup;
 import com.mihai.library.service.LoanPolicy;
@@ -54,4 +55,19 @@ public class AbstractFactoryTest {
                         .build());
         assertTrue(group instanceof LibraryItemGroup);
     }
+
+        @Test
+        void standardFactory_appliesDvdCapAndWeekendAdjustment() {
+                LibraryAbstractFactory factory = new StandardLibraryFactory();
+
+                Dvd dvd = Dvd.builder()
+                                .id("D1")
+                                .title("Interstellar")
+                                .durationMinutes(169)
+                                .build();
+
+                // 2026-03-01 + 7 zile = duminica 2026-03-08, apoi ajustare la luni 2026-03-09
+                LocalDate due = factory.loanPolicy().computeDueDate(dvd, LocalDate.of(2026, 3, 1));
+                assertEquals(LocalDate.of(2026, 3, 9), due);
+        }
 }

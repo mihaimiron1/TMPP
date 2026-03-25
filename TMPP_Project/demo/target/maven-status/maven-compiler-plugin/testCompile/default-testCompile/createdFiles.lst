@@ -3,7 +3,6 @@ com\mihai\library\adapter\FileCatalogAdapterTest.class
 com\mihai\library\domain\LibraryItemGroupTest.class
 com\mihai\library\adapter\FileLoanRepositoryAdapterTest.class
 com\mihai\library\adapter\LibraryServiceAdapterIntegrationTest.class
-com\mihai\library\domain\FlyweightTextFactoryTest.class
 com\mihai\library\facade\LibraryFacadeTest$TestCatalog.class
 com\mihai\library\factory\FactoryMethodTest.class
 com\mihai\library\facade\LibraryFacadeTest$TestLoanRepository.class

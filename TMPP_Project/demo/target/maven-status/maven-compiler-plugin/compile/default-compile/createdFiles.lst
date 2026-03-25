@@ -1,6 +1,5 @@
 com\mihai\library\factory\ItemRequest$Builder.class
 com\mihai\library\adapter\FileCatalogAdapter.class
-com\mihai\library\flyweight\TextFlyweightFactory.class
 com\mihai\library\adapter\codec\LibraryItemRecordCodec.class
 com\mihai\library\factory\ItemType.class
 com\mihai\library\service\DefaultLoanPolicy.class
@@ -34,7 +33,6 @@ com\mihai\library\domain\Member.class
 com\mihai\library\domain\Book.class
 com\mihai\library\factory\GroupCreator.class
 com\mihai\library\factory\StandardLibraryFactory.class
-com\mihai\library\flyweight\TextFlyweight.class
 com\mihai\library\service\exceptions\ItemNotFoundException.class
 com\mihai\library\domain\Magazine$Builder.class
 com\mihai\library\domain\Loan.class
