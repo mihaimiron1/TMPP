@@ -14,6 +14,7 @@ import com.mihai.library.notification.LoanNotification;
 import com.mihai.library.notification.ReturnLoanNotification;
 import com.mihai.library.repo.Catalog;
 import com.mihai.library.repo.LoanRepository;
+import com.mihai.library.repo.proxy.AuditedLoanRepositoryProxy;
 import com.mihai.library.service.LibraryService;
 import com.mihai.library.service.exceptions.LoanNotFoundException;
 
@@ -73,9 +74,12 @@ public final class LibraryFacade {
 
         Path catalogFile = dataDirectory.resolve("catalog.db");
         Path loansFile = dataDirectory.resolve("loans.db");
+        Path loanAuditFile = dataDirectory.resolve("loan-audit.log");
 
         Catalog catalog = new FileCatalogAdapter(new FileStorage(catalogFile));
-        LoanRepository loanRepository = new FileLoanRepositoryAdapter(new FileStorage(loansFile));
+        LoanRepository loanRepository = new AuditedLoanRepositoryProxy(
+            new FileLoanRepositoryAdapter(new FileStorage(loansFile)),
+            loanAuditFile);
         return new LibraryFacade(
                 catalog,
                 loanRepository,

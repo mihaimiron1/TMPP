@@ -1,9 +1,11 @@
+D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\service\LibraryServiceNotificationBridgeTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\facade\LibraryFacadeTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\factory\FactoryMethodTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\domain\LibraryItemGroupTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\service\LoanPolicyDecoratorTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\adapter\FileLoanRepositoryAdapterTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\factory\AbstractFactoryTest.java
+D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\repo\proxy\AuditedLoanRepositoryProxyTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\domain\AuthorFlyweightFactoryTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\adapter\FileCatalogAdapterTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\adapter\LibraryServiceAdapterIntegrationTest.java

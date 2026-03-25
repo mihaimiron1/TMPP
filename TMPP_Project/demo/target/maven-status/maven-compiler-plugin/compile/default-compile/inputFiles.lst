@@ -39,6 +39,7 @@ D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\factory\LibraryIt
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\domain\Book.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\flyweight\AuthorFlyweight.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\factory\ShortLoanLibraryFactory.java
+D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\repo\proxy\AuditedLoanRepositoryProxy.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\service\exceptions\LoanNotFoundException.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\adapter\codec\LoanRecordCodec.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\adapter\FileCatalogAdapter.java
