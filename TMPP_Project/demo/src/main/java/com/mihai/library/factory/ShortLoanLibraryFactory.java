@@ -4,6 +4,9 @@ import com.mihai.library.domain.LibraryItem;
 import com.mihai.library.service.LoanPolicy;
 import com.mihai.library.service.decorator.ItemTypeLoanPolicyDecorator;
 import com.mihai.library.service.decorator.WeekendAdjustmentLoanPolicyDecorator;
+import com.mihai.library.service.penalty.GracePeriodPenaltyStrategy;
+import com.mihai.library.service.penalty.ItemTypePenaltyStrategy;
+import com.mihai.library.service.penalty.PenaltyStrategy;
 
 import java.time.LocalDate;
 
@@ -42,5 +45,10 @@ public final class ShortLoanLibraryFactory implements LibraryAbstractFactory {
 
         LoanPolicy itemAwarePolicy = new ItemTypeLoanPolicyDecorator(basePolicy);
         return new WeekendAdjustmentLoanPolicyDecorator(itemAwarePolicy);
+    }
+
+    @Override
+    public PenaltyStrategy penaltyStrategy() {
+        return new GracePeriodPenaltyStrategy(new ItemTypePenaltyStrategy(), 2);
     }
 }

@@ -4,6 +4,8 @@ import com.mihai.library.service.DefaultLoanPolicy;
 import com.mihai.library.service.LoanPolicy;
 import com.mihai.library.service.decorator.ItemTypeLoanPolicyDecorator;
 import com.mihai.library.service.decorator.WeekendAdjustmentLoanPolicyDecorator;
+import com.mihai.library.service.penalty.ItemTypePenaltyStrategy;
+import com.mihai.library.service.penalty.PenaltyStrategy;
 
 public final class StandardLibraryFactory implements LibraryAbstractFactory {
 
@@ -33,4 +35,9 @@ public final class StandardLibraryFactory implements LibraryAbstractFactory {
         LoanPolicy itemAwarePolicy = new ItemTypeLoanPolicyDecorator(basePolicy);
         return new WeekendAdjustmentLoanPolicyDecorator(itemAwarePolicy);
     } // 14 zile (cum ai)
+
+    @Override
+    public PenaltyStrategy penaltyStrategy() {
+        return new ItemTypePenaltyStrategy();
+    }
 }
