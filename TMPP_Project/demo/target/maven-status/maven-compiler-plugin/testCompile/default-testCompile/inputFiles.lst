@@ -8,6 +8,7 @@ D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\service\PenaltySt
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\domain\AuthorFlyweightFactoryTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\service\PenaltyObserverTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\adapter\LibraryServiceAdapterIntegrationTest.java
+D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\service\BorrowHandlerChainTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\adapter\FileLoanRepositoryAdapterTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\factory\AbstractFactoryTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\repo\proxy\AuditedLoanRepositoryProxyTest.java

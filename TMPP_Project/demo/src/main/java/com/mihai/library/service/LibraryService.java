@@ -1,7 +1,6 @@
 package com.mihai.library.service;
 
 import com.mihai.library.domain.LibraryItem;
-import com.mihai.library.domain.LibraryItemGroup;
 import com.mihai.library.domain.Loan;
 import com.mihai.library.notification.BorrowLoanNotification;
 import com.mihai.library.notification.LoanNotification;
@@ -11,8 +10,13 @@ import com.mihai.library.observer.LibraryEventPublisher;
 import com.mihai.library.observer.LibraryObserver;
 import com.mihai.library.repo.Catalog;
 import com.mihai.library.repo.LoanRepository;
-import com.mihai.library.service.exceptions.ItemAlreadyLoanedException;
-import com.mihai.library.service.exceptions.ItemNotFoundException;
+import com.mihai.library.service.borrow.BorrowHandler;
+import com.mihai.library.service.borrow.BorrowRequestContext;
+import com.mihai.library.service.borrow.BorrowableItemHandler;
+import com.mihai.library.service.borrow.ItemAvailabilityHandler;
+import com.mihai.library.service.borrow.ItemIdValidationHandler;
+import com.mihai.library.service.borrow.ItemLookupHandler;
+import com.mihai.library.service.borrow.MemberIdValidationHandler;
 import com.mihai.library.service.exceptions.LoanNotFoundException;
 
 import java.time.LocalDate;
@@ -26,6 +30,7 @@ public final class LibraryService {
     private final LoanNotification borrowNotification;
     private final LoanNotification returnNotification;
     private final LibraryEventPublisher eventPublisher;
+    private final BorrowHandler borrowHandler;
 
     public LibraryService(Catalog catalog, LoanRepository loanRepository, LoanPolicy loanPolicy) {
         this(
@@ -53,6 +58,7 @@ public final class LibraryService {
         this.borrowNotification = borrowNotification;
         this.returnNotification = returnNotification;
         this.eventPublisher = new LibraryEventPublisher();
+        this.borrowHandler = createBorrowHandlerChain(catalog, loanRepository);
     }
 
     public void registerObserver(LibraryObserver observer) {
@@ -64,17 +70,14 @@ public final class LibraryService {
     }
 
     public Loan borrowItem(String memberId, String itemId) {
-        String validatedMemberId = requireValidId(memberId, "memberId");
-        String validatedItemId = requireValidId(itemId, "itemId");
-
-        LibraryItem item = findItemOrThrow(validatedItemId);
-        ensureItemCanBeBorrowed(item);
-        ensureItemIsAvailable(validatedItemId);
+        BorrowRequestContext context = new BorrowRequestContext(memberId, itemId);
+        borrowHandler.handle(context);
 
         LocalDate now = LocalDate.now();
+        LibraryItem item = context.getItem();
         LocalDate due = loanPolicy.computeDueDate(item, now);
 
-        Loan loan = new Loan(UUID.randomUUID().toString(), validatedMemberId, validatedItemId, now, due);
+        Loan loan = new Loan(UUID.randomUUID().toString(), context.getMemberId(), context.getItemId(), now, due);
         loanRepository.save(loan);
         borrowNotification.sendForLoan(loan);
         eventPublisher.notifyItemBorrowed(loan);
@@ -105,25 +108,24 @@ public final class LibraryService {
         return value;
     }
 
-    private LibraryItem findItemOrThrow(String itemId) {
-        return catalog.findById(itemId)
-                .orElseThrow(() -> new ItemNotFoundException("Item inexistent: " + itemId));
-    }
-
-    private void ensureItemIsAvailable(String itemId) {
-        loanRepository.findActiveLoanByItemId(itemId).ifPresent(loan -> {
-            throw new ItemAlreadyLoanedException("Item deja împrumutat: " + itemId);
-        });
-    }
-
-    private void ensureItemCanBeBorrowed(LibraryItem item) {
-        if (item instanceof LibraryItemGroup) {
-            throw new IllegalArgumentException("Composite items cannot be borrowed directly: " + item.getId());
-        }
-    }
-
     private Loan findActiveLoanOrThrow(String itemId) {
         return loanRepository.findActiveLoanByItemId(itemId)
-                .orElseThrow(() -> new LoanNotFoundException("Nu există împrumut activ pentru item: " + itemId));
+                .orElseThrow(() -> new LoanNotFoundException("Nu exista imprumut activ pentru item: " + itemId));
+    }
+
+    private static BorrowHandler createBorrowHandlerChain(Catalog catalog, LoanRepository loanRepository) {
+        BorrowHandler memberValidation = new MemberIdValidationHandler();
+        BorrowHandler itemValidation = new ItemIdValidationHandler();
+        BorrowHandler itemLookup = new ItemLookupHandler(catalog);
+        BorrowHandler borrowableItem = new BorrowableItemHandler();
+        BorrowHandler availability = new ItemAvailabilityHandler(loanRepository);
+
+        memberValidation
+                .setNext(itemValidation)
+                .setNext(itemLookup)
+                .setNext(borrowableItem)
+                .setNext(availability);
+
+        return memberValidation;
     }
 }
