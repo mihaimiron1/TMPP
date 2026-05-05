@@ -1,5 +1,7 @@
 package com.mihai.library.domain;
 
+import com.mihai.library.visitor.LibraryItemVisitor;
+
 public final class Magazine extends LibraryItem {
     private final int issueNumber;
 
@@ -30,6 +32,14 @@ public final class Magazine extends LibraryItem {
     @Override
     public String getType() {
         return "MAGAZINE";
+    }
+
+    @Override
+    public <R> R accept(LibraryItemVisitor<R> visitor) {
+        if (visitor == null) {
+            throw new IllegalArgumentException("visitor null");
+        }
+        return visitor.visitMagazine(this);
     }
 
     @Override

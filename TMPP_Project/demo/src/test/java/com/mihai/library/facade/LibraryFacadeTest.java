@@ -118,6 +118,24 @@ public class LibraryFacadeTest {
     }
 
     @Test
+    void visitorCatalogReport_exposesDescriptionsAndStatistics() {
+        facade.addBook("B1", "Clean Code", "Robert C. Martin", "978-0132350884");
+        facade.addMagazine("M1", "National Geographic", 202);
+        facade.addDvd("D1", "Interstellar", 169);
+        facade.addGroupByItemIds("G1", "Starter Bundle", List.of("B1", "M1"));
+
+        List<String> descriptions = facade.describeCatalogItems();
+
+        assertEquals(4, descriptions.size());
+        assertTrue(descriptions.stream().anyMatch(description -> description.contains("BOOK B1 - Clean Code")));
+        assertTrue(descriptions.stream().anyMatch(description -> description.contains("GROUP G1 - Starter Bundle")));
+        assertEquals(1, facade.catalogStatistics().getBooks());
+        assertEquals(1, facade.catalogStatistics().getMagazines());
+        assertEquals(1, facade.catalogStatistics().getDvds());
+        assertEquals(1, facade.catalogStatistics().getGroups());
+    }
+
+    @Test
     void closeActiveLoanIfPresent_returnsOperationStatus() {
         facade.addBook("B1", "Clean Code", "Robert C. Martin", "978-0132350884");
 

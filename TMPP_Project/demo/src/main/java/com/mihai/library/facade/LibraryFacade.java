@@ -27,6 +27,9 @@ import com.mihai.library.repo.proxy.AuditedLoanRepositoryProxy;
 import com.mihai.library.service.LibraryService;
 import com.mihai.library.service.exceptions.LoanNotFoundException;
 import com.mihai.library.service.penalty.PenaltyService;
+import com.mihai.library.visitor.CatalogDescriptionVisitor;
+import com.mihai.library.visitor.CatalogStatistics;
+import com.mihai.library.visitor.CatalogStatisticsVisitor;
 
 import java.math.BigDecimal;
 import java.nio.file.Path;
@@ -243,6 +246,19 @@ public final class LibraryFacade {
 
     public List<LibraryItem> listCatalogItems() {
         return catalog.getAllItems();
+    }
+
+    public List<String> describeCatalogItems() {
+        CatalogDescriptionVisitor visitor = new CatalogDescriptionVisitor();
+        return catalog.getAllItems().stream()
+                .map(item -> item.accept(visitor))
+                .toList();
+    }
+
+    public CatalogStatistics catalogStatistics() {
+        CatalogStatisticsVisitor visitor = new CatalogStatisticsVisitor();
+        catalog.getAllItems().forEach(item -> item.accept(visitor));
+        return visitor.statistics();
     }
 
     public LibraryIterator<LibraryItem> iterateAvailableBooksByAuthor(String author) {

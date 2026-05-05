@@ -2,6 +2,7 @@ package com.mihai.library.domain;
 
 import com.mihai.library.flyweight.AuthorFlyweight;
 import com.mihai.library.flyweight.AuthorFlyweightFactory;
+import com.mihai.library.visitor.LibraryItemVisitor;
 
 public final class Book extends LibraryItem {
     private final AuthorFlyweight authorFlyweight;
@@ -46,6 +47,14 @@ public final class Book extends LibraryItem {
     @Override
     public String getType() {
         return "BOOK";
+    }
+
+    @Override
+    public <R> R accept(LibraryItemVisitor<R> visitor) {
+        if (visitor == null) {
+            throw new IllegalArgumentException("visitor null");
+        }
+        return visitor.visitBook(this);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.mihai.library.domain;
 
+import com.mihai.library.visitor.LibraryItemVisitor;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -67,6 +69,14 @@ public final class LibraryItemGroup extends LibraryItem {
     @Override
     public String getType() {
         return "GROUP";
+    }
+
+    @Override
+    public <R> R accept(LibraryItemVisitor<R> visitor) {
+        if (visitor == null) {
+            throw new IllegalArgumentException("visitor null");
+        }
+        return visitor.visitGroup(this);
     }
 
     @Override
