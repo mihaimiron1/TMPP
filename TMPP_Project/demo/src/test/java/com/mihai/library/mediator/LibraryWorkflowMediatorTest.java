@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -85,6 +86,25 @@ public class LibraryWorkflowMediatorTest {
         assertEquals(BigDecimal.valueOf(3.00), receipt.getPenalty());
     }
 
+    @Test
+    void circulationWorkflow_execute_runsTemplateStepsInOrder() {
+        RecordingWorkflow workflow = new RecordingWorkflow();
+
+        String result = workflow.execute();
+
+        assertEquals("done", result);
+        assertEquals("validate>prepare>process>finish", workflow.steps());
+    }
+
+    @Test
+    void checkoutWorkflow_validatesMemberIdBeforeProcessing() {
+        CheckoutBorrowCartWorkflow workflow = new CheckoutBorrowCartWorkflow(borrowCartService, libraryService, " ");
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, workflow::execute);
+
+        assertEquals("memberId invalid", ex.getMessage());
+    }
+
     private static Book book(String id, String title) {
         return Book.builder()
                 .id(id)
@@ -138,6 +158,35 @@ public class LibraryWorkflowMediatorTest {
             return loans.values().stream()
                     .filter(loan -> memberId.equals(loan.getMemberId()))
                     .toList();
+        }
+    }
+
+    private static final class RecordingWorkflow extends CirculationWorkflow<String> {
+        private final StringBuilder steps = new StringBuilder();
+
+        @Override
+        protected void validate() {
+            steps.append("validate");
+        }
+
+        @Override
+        protected void prepare() {
+            steps.append(">prepare");
+        }
+
+        @Override
+        protected String process() {
+            steps.append(">process");
+            return "done";
+        }
+
+        @Override
+        protected void finish(String result) {
+            steps.append(">finish");
+        }
+
+        String steps() {
+            return steps.toString();
         }
     }
 }

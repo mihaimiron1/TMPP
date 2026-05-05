@@ -6,8 +6,6 @@ import com.mihai.library.memento.BorrowCartService;
 import com.mihai.library.service.LibraryService;
 import com.mihai.library.service.penalty.PenaltyService;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 
 public final class LibraryWorkflowMediator implements CirculationMediator {
@@ -35,23 +33,11 @@ public final class LibraryWorkflowMediator implements CirculationMediator {
 
     @Override
     public ReturnReceipt returnItemWithPenalty(String itemId) {
-        LocalDate evaluationDate = LocalDate.now();
-        BigDecimal penalty = penaltyService.calculatePenaltyForActiveLoan(itemId, evaluationDate);
-        Loan returnedLoan = libraryService.returnItem(itemId);
-        return new ReturnReceipt(returnedLoan, penalty, evaluationDate);
+        return new ReturnItemWithPenaltyWorkflow(libraryService, penaltyService, itemId).execute();
     }
 
     @Override
     public List<Loan> checkoutBorrowCart(String memberId) {
-        List<String> itemIds = borrowCartService.getCartItems(memberId);
-        if (itemIds.isEmpty()) {
-            return List.of();
-        }
-
-        List<Loan> loans = itemIds.stream()
-                .map(itemId -> libraryService.borrowItem(memberId, itemId))
-                .toList();
-        borrowCartService.resetCart(memberId);
-        return loans;
+        return new CheckoutBorrowCartWorkflow(borrowCartService, libraryService, memberId).execute();
     }
 }
