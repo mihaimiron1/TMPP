@@ -11,6 +11,8 @@ import com.mihai.library.factory.ItemType;
 import com.mihai.library.factory.LibraryAbstractFactory;
 import com.mihai.library.iterator.CatalogNavigator;
 import com.mihai.library.iterator.LibraryIterator;
+import com.mihai.library.mediator.CirculationMediator;
+import com.mihai.library.mediator.LibraryWorkflowMediator;
 import com.mihai.library.notification.BorrowLoanNotification;
 import com.mihai.library.notification.ConsoleNotificationChannel;
 import com.mihai.library.notification.LoanNotification;
@@ -27,8 +29,8 @@ import com.mihai.library.service.exceptions.LoanNotFoundException;
 import com.mihai.library.service.penalty.PenaltyService;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -93,6 +95,7 @@ public final class LibraryFacade {
     private final PenaltyService penaltyService;
     private final BorrowCartService borrowCartService;
     private final CatalogNavigator catalogNavigator;
+    private final CirculationMediator circulationMediator;
 
     public LibraryFacade(Catalog catalog, LoanRepository loanRepository, LibraryAbstractFactory factory) {
         this(
@@ -126,6 +129,10 @@ public final class LibraryFacade {
         this.catalogNavigator = new CatalogNavigator(catalog, loanRepository);
         if (borrowNotification == null || returnNotification == null) {
             this.libraryService = new LibraryService(catalog, loanRepository, factory.loanPolicy());
+            this.circulationMediator = new LibraryWorkflowMediator(
+                    borrowCartService,
+                    libraryService,
+                    penaltyService);
             return;
         }
 
@@ -135,6 +142,10 @@ public final class LibraryFacade {
                 factory.loanPolicy(),
                 borrowNotification,
                 returnNotification);
+        this.circulationMediator = new LibraryWorkflowMediator(
+                borrowCartService,
+                libraryService,
+                penaltyService);
     }
 
     public static LibraryFacade fileBacked(Path dataDirectory, LibraryAbstractFactory factory) {
@@ -170,10 +181,7 @@ public final class LibraryFacade {
     }
 
     public ReturnReceipt returnItemWithPenalty(String itemId) {
-        LocalDate evaluationDate = LocalDate.now();
-        BigDecimal penalty = penaltyService.calculatePenaltyForActiveLoan(itemId, evaluationDate);
-        Loan returnedLoan = libraryService.returnItem(itemId);
-        return new ReturnReceipt(returnedLoan, penalty, evaluationDate);
+        return circulationMediator.returnItemWithPenalty(itemId);
     }
 
     public List<Loan> listLoansForMember(String memberId) {
@@ -230,16 +238,7 @@ public final class LibraryFacade {
     }
 
     public List<Loan> checkoutBorrowCart(String memberId) {
-        List<String> itemIds = borrowCartService.getCartItems(memberId);
-        if (itemIds.isEmpty()) {
-            return List.of();
-        }
-
-        List<Loan> loans = itemIds.stream()
-                .map(itemId -> borrowItem(memberId, itemId))
-                .toList();
-        borrowCartService.resetCart(memberId);
-        return loans;
+        return circulationMediator.checkoutBorrowCart(memberId);
     }
 
     public List<LibraryItem> listCatalogItems() {

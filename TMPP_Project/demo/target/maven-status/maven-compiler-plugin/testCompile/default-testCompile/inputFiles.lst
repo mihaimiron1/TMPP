@@ -4,11 +4,13 @@ D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\facade\LibraryFac
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\factory\FactoryMethodTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\domain\LibraryItemGroupTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\service\LoanPolicyDecoratorTest.java
+D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\mediator\LibraryWorkflowMediatorTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\service\PenaltyStrategyTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\domain\AuthorFlyweightFactoryTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\service\PenaltyObserverTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\adapter\LibraryServiceAdapterIntegrationTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\service\BorrowHandlerChainTest.java
+D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\memento\BorrowCartStateTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\adapter\FileLoanRepositoryAdapterTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\factory\AbstractFactoryTest.java
 D:\repo\TMPP\TMPP_Project\demo\src\test\java\com\mihai\library\repo\proxy\AuditedLoanRepositoryProxyTest.java
