@@ -4,6 +4,7 @@ import com.mihai.library.domain.Book;
 import com.mihai.library.domain.LibraryItem;
 import com.mihai.library.domain.LibraryItemGroup;
 import com.mihai.library.domain.Loan;
+import com.mihai.library.domain.ReturnReceipt;
 import com.mihai.library.factory.StandardLibraryFactory;
 import com.mihai.library.repo.Catalog;
 import com.mihai.library.repo.LoanRepository;
@@ -11,6 +12,7 @@ import com.mihai.library.service.exceptions.ItemAlreadyLoanedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,11 +106,15 @@ public class LibraryFacadeTest {
         facade.ensureDemoCatalog();
 
         List<LibraryItem> items = facade.listCatalogItems();
-        assertEquals(4, items.size());
+        assertEquals(46, items.size());
         assertTrue(items.stream().anyMatch(item -> "B1".equals(item.getId())));
         assertTrue(items.stream().anyMatch(item -> "M1".equals(item.getId())));
         assertTrue(items.stream().anyMatch(item -> "D1".equals(item.getId())));
         assertTrue(items.stream().anyMatch(item -> "G1".equals(item.getId())));
+        assertEquals(15, items.stream().filter(item -> "BOOK".equals(item.getType())).count());
+        assertEquals(15, items.stream().filter(item -> "MAGAZINE".equals(item.getType())).count());
+        assertEquals(15, items.stream().filter(item -> "DVD".equals(item.getType())).count());
+        assertEquals(1, items.stream().filter(item -> "GROUP".equals(item.getType())).count());
     }
 
     @Test
@@ -121,6 +127,70 @@ public class LibraryFacadeTest {
 
         assertTrue(facade.closeActiveLoanIfPresent("B1"));
         assertFalse(facade.closeActiveLoanIfPresent("B1"));
+    }
+
+    @Test
+    void calculatePenaltyForLoan_usesFactoryPenaltyStrategy() {
+        facade.addBook("B1", "Clean Code", "Robert C. Martin", "978-0132350884");
+        Loan loan = facade.borrowItem("U1", "B1");
+
+        BigDecimal penalty = facade.calculatePenaltyForLoan(loan.getLoanId(), loan.getDueDate().plusDays(2));
+
+        assertEquals(BigDecimal.valueOf(3.00), penalty);
+    }
+
+    @Test
+    void returnItemWithPenalty_returnsReceiptVisibleToCaller() {
+        facade.addBook("B1", "Clean Code", "Robert C. Martin", "978-0132350884");
+        Loan loan = facade.borrowItem("U1", "B1");
+
+        ReturnReceipt receipt = facade.returnItemWithPenalty("B1");
+
+        assertEquals(loan.getLoanId(), receipt.getLoan().getLoanId());
+        assertEquals(BigDecimal.ZERO, receipt.getPenalty());
+        assertFalse(receipt.getLoan().isActive());
+    }
+
+    @Test
+    void findAvailableBooksByAuthor_filtersByAuthorAndAvailability() {
+        facade.addBook("B1", "Clean Code", "Robert C. Martin", "978-0132350884");
+        facade.addBook("B2", "Clean Architecture", "Robert C. Martin", "978-0134494166");
+        facade.addBook("B3", "Effective Java", "Joshua Bloch", "978-0134685991");
+        facade.borrowItem("U1", "B1");
+
+        List<LibraryItem> items = facade.findAvailableBooksByAuthor("Robert C. Martin");
+
+        assertEquals(1, items.size());
+        assertEquals("B2", items.get(0).getId());
+    }
+
+    @Test
+    void borrowCart_undoRestoresPreviousCartState() {
+        facade.addBook("B1", "Clean Code", "Robert C. Martin", "978-0132350884");
+        facade.addBook("B2", "Effective Java", "Joshua Bloch", "978-0134685991");
+
+        facade.addItemToBorrowCart("U1", "B1");
+        facade.addItemToBorrowCart("U1", "B2");
+
+        assertEquals(List.of("B1", "B2"), facade.viewBorrowCart("U1"));
+        assertTrue(facade.undoLastCartChange("U1"));
+        assertEquals(List.of("B1"), facade.viewBorrowCart("U1"));
+    }
+
+    @Test
+    void checkoutBorrowCart_borrowsItemsAndClearsCart() {
+        facade.addBook("B1", "Clean Code", "Robert C. Martin", "978-0132350884");
+        facade.addMagazine("M1", "National Geographic", 202);
+
+        facade.addItemToBorrowCart("U1", "B1");
+        facade.addItemToBorrowCart("U1", "M1");
+
+        List<Loan> loans = facade.checkoutBorrowCart("U1");
+
+        assertEquals(2, loans.size());
+        assertTrue(loans.stream().anyMatch(loan -> "B1".equals(loan.getItemId())));
+        assertTrue(loans.stream().anyMatch(loan -> "M1".equals(loan.getItemId())));
+        assertEquals(List.of(), facade.viewBorrowCart("U1"));
     }
 
     private static final class TestCatalog implements Catalog {

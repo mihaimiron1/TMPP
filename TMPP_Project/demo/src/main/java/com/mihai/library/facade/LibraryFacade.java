@@ -5,27 +5,94 @@ import com.mihai.library.adapter.FileLoanRepositoryAdapter;
 import com.mihai.library.adapter.storage.FileStorage;
 import com.mihai.library.domain.LibraryItem;
 import com.mihai.library.domain.Loan;
+import com.mihai.library.domain.ReturnReceipt;
 import com.mihai.library.factory.ItemRequest;
 import com.mihai.library.factory.ItemType;
 import com.mihai.library.factory.LibraryAbstractFactory;
+import com.mihai.library.iterator.CatalogNavigator;
+import com.mihai.library.iterator.LibraryIterator;
 import com.mihai.library.notification.BorrowLoanNotification;
 import com.mihai.library.notification.ConsoleNotificationChannel;
 import com.mihai.library.notification.LoanNotification;
+import com.mihai.library.notification.NotificationChannel;
 import com.mihai.library.notification.ReturnLoanNotification;
+import com.mihai.library.memento.BorrowCartService;
+import com.mihai.library.observer.LibraryObserver;
+import com.mihai.library.observer.PenaltyObserver;
 import com.mihai.library.repo.Catalog;
 import com.mihai.library.repo.LoanRepository;
 import com.mihai.library.repo.proxy.AuditedLoanRepositoryProxy;
 import com.mihai.library.service.LibraryService;
 import com.mihai.library.service.exceptions.LoanNotFoundException;
+import com.mihai.library.service.penalty.PenaltyService;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
 public final class LibraryFacade {
+    private static final int[] DEMO_MAGAZINE_ISSUES = {202, 203, 204, 205, 206};
+    private static final int[] DEMO_DVD_DURATIONS = {169, 148, 136, 121, 117};
+    private static final String[][] DEMO_BOOKS = {
+            {"B1", "Clean Code", "Robert C. Martin", "978-0132350884"},
+            {"B2", "Clean Code", "Robert C. Martin", "978-0132350884"},
+            {"B3", "Clean Code", "Robert C. Martin", "978-0132350884"},
+            {"B4", "Effective Java", "Joshua Bloch", "978-0134685991"},
+            {"B5", "Effective Java", "Joshua Bloch", "978-0134685991"},
+            {"B6", "Effective Java", "Joshua Bloch", "978-0134685991"},
+            {"B7", "Design Patterns", "Erich Gamma", "978-0201633610"},
+            {"B8", "Design Patterns", "Erich Gamma", "978-0201633610"},
+            {"B9", "Design Patterns", "Erich Gamma", "978-0201633610"},
+            {"B10", "Refactoring", "Martin Fowler", "978-0201485677"},
+            {"B11", "Refactoring", "Martin Fowler", "978-0201485677"},
+            {"B12", "Refactoring", "Martin Fowler", "978-0201485677"},
+            {"B13", "The Pragmatic Programmer", "Andrew Hunt", "978-0135957059"},
+            {"B14", "The Pragmatic Programmer", "Andrew Hunt", "978-0135957059"},
+            {"B15", "The Pragmatic Programmer", "Andrew Hunt", "978-0135957059"}
+    };
+    private static final String[][] DEMO_MAGAZINES = {
+            {"M1", "National Geographic"},
+            {"M2", "National Geographic"},
+            {"M3", "National Geographic"},
+            {"M4", "Scientific American"},
+            {"M5", "Scientific American"},
+            {"M6", "Scientific American"},
+            {"M7", "Time"},
+            {"M8", "Time"},
+            {"M9", "Time"},
+            {"M10", "Wired"},
+            {"M11", "Wired"},
+            {"M12", "Wired"},
+            {"M13", "The Economist"},
+            {"M14", "The Economist"},
+            {"M15", "The Economist"}
+    };
+    private static final String[][] DEMO_DVDS = {
+            {"D1", "Interstellar"},
+            {"D2", "Interstellar"},
+            {"D3", "Interstellar"},
+            {"D4", "Inception"},
+            {"D5", "Inception"},
+            {"D6", "Inception"},
+            {"D7", "The Matrix"},
+            {"D8", "The Matrix"},
+            {"D9", "The Matrix"},
+            {"D10", "The Lord of the Rings: The Fellowship of the Ring"},
+            {"D11", "The Lord of the Rings: The Fellowship of the Ring"},
+            {"D12", "The Lord of the Rings: The Fellowship of the Ring"},
+            {"D13", "The Grand Budapest Hotel"},
+            {"D14", "The Grand Budapest Hotel"},
+            {"D15", "The Grand Budapest Hotel"}
+    };
+
     private final Catalog catalog;
     private final LibraryAbstractFactory factory;
     private final LibraryService libraryService;
+    private final PenaltyService penaltyService;
+    private final BorrowCartService borrowCartService;
+    private final CatalogNavigator catalogNavigator;
 
     public LibraryFacade(Catalog catalog, LoanRepository loanRepository, LibraryAbstractFactory factory) {
         this(
@@ -54,6 +121,9 @@ public final class LibraryFacade {
 
         this.catalog = catalog;
         this.factory = factory;
+        this.penaltyService = new PenaltyService(catalog, loanRepository, factory.penaltyStrategy());
+        this.borrowCartService = new BorrowCartService(catalog);
+        this.catalogNavigator = new CatalogNavigator(catalog, loanRepository);
         if (borrowNotification == null || returnNotification == null) {
             this.libraryService = new LibraryService(catalog, loanRepository, factory.loanPolicy());
             return;
@@ -80,12 +150,15 @@ public final class LibraryFacade {
         LoanRepository loanRepository = new AuditedLoanRepositoryProxy(
             new FileLoanRepositoryAdapter(new FileStorage(loansFile)),
             loanAuditFile);
-        return new LibraryFacade(
+        NotificationChannel channel = new ConsoleNotificationChannel();
+        LibraryFacade facade = new LibraryFacade(
                 catalog,
                 loanRepository,
                 factory,
-                new BorrowLoanNotification(new ConsoleNotificationChannel()),
-                new ReturnLoanNotification(new ConsoleNotificationChannel()));
+                new BorrowLoanNotification(channel),
+                new ReturnLoanNotification(channel, catalog, factory.penaltyStrategy()));
+        facade.registerObserver(new PenaltyObserver(facade.penaltyService, channel));
+        return facade;
     }
 
     public Loan borrowItem(String memberId, String itemId) {
@@ -96,8 +169,31 @@ public final class LibraryFacade {
         return libraryService.returnItem(itemId);
     }
 
+    public ReturnReceipt returnItemWithPenalty(String itemId) {
+        LocalDate evaluationDate = LocalDate.now();
+        BigDecimal penalty = penaltyService.calculatePenaltyForActiveLoan(itemId, evaluationDate);
+        Loan returnedLoan = libraryService.returnItem(itemId);
+        return new ReturnReceipt(returnedLoan, penalty, evaluationDate);
+    }
+
     public List<Loan> listLoansForMember(String memberId) {
         return libraryService.listLoansForMember(memberId);
+    }
+
+    public BigDecimal calculatePenaltyForLoan(String loanId, LocalDate evaluationDate) {
+        return penaltyService.calculatePenaltyForLoan(loanId, evaluationDate);
+    }
+
+    public BigDecimal calculatePenaltyForActiveLoan(String itemId, LocalDate evaluationDate) {
+        return penaltyService.calculatePenaltyForActiveLoan(itemId, evaluationDate);
+    }
+
+    public void registerObserver(LibraryObserver observer) {
+        libraryService.registerObserver(observer);
+    }
+
+    public void unregisterObserver(LibraryObserver observer) {
+        libraryService.unregisterObserver(observer);
     }
 
     public boolean closeActiveLoanIfPresent(String itemId) {
@@ -109,8 +205,53 @@ public final class LibraryFacade {
         }
     }
 
+    public void addItemToBorrowCart(String memberId, String itemId) {
+        borrowCartService.addItem(memberId, itemId);
+    }
+
+    public boolean removeItemFromBorrowCart(String memberId, String itemId) {
+        return borrowCartService.removeItem(memberId, itemId);
+    }
+
+    public List<String> viewBorrowCart(String memberId) {
+        return borrowCartService.getCartItems(memberId);
+    }
+
+    public boolean undoLastCartChange(String memberId) {
+        return borrowCartService.undoLastChange(memberId);
+    }
+
+    public void clearBorrowCart(String memberId) {
+        borrowCartService.clearCart(memberId);
+    }
+
+    public void cancelBorrowCart(String memberId) {
+        borrowCartService.resetCart(memberId);
+    }
+
+    public List<Loan> checkoutBorrowCart(String memberId) {
+        List<String> itemIds = borrowCartService.getCartItems(memberId);
+        if (itemIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<Loan> loans = itemIds.stream()
+                .map(itemId -> borrowItem(memberId, itemId))
+                .toList();
+        borrowCartService.resetCart(memberId);
+        return loans;
+    }
+
     public List<LibraryItem> listCatalogItems() {
         return catalog.getAllItems();
+    }
+
+    public LibraryIterator<LibraryItem> iterateAvailableBooksByAuthor(String author) {
+        return catalogNavigator.iterateAvailableBooksByAuthor(author);
+    }
+
+    public List<LibraryItem> findAvailableBooksByAuthor(String author) {
+        return catalogNavigator.collect(iterateAvailableBooksByAuthor(author));
     }
 
     public Optional<LibraryItem> findItemById(String itemId) {
@@ -156,27 +297,37 @@ public final class LibraryFacade {
     }
 
     public void ensureDemoCatalog() {
-        ensureBook();
-        ensureMagazine();
-        ensureDvd();
+        ensureBooks();
+        ensureMagazines();
+        ensureDvds();
         ensureStarterGroup();
     }
 
-    private void ensureBook() {
-        if (catalog.findById("B1").isEmpty()) {
-            addBook("B1", "Clean Code", "Robert C. Martin", "978-0132350884");
+    private void ensureBooks() {
+        for (String[] book : DEMO_BOOKS) {
+            if (catalog.findById(book[0]).isEmpty()) {
+                addBook(book[0], book[1], book[2], book[3]);
+            }
         }
     }
 
-    private void ensureMagazine() {
-        if (catalog.findById("M1").isEmpty()) {
-            addMagazine("M1", "National Geographic", 202);
+    private void ensureMagazines() {
+        for (int index = 0; index < DEMO_MAGAZINES.length; index++) {
+            String[] magazine = DEMO_MAGAZINES[index];
+            int issueNumber = DEMO_MAGAZINE_ISSUES[index / 3];
+            if (catalog.findById(magazine[0]).isEmpty()) {
+                addMagazine(magazine[0], magazine[1], issueNumber);
+            }
         }
     }
 
-    private void ensureDvd() {
-        if (catalog.findById("D1").isEmpty()) {
-            addDvd("D1", "Interstellar", 169);
+    private void ensureDvds() {
+        for (int index = 0; index < DEMO_DVDS.length; index++) {
+            String[] dvd = DEMO_DVDS[index];
+            int durationMinutes = DEMO_DVD_DURATIONS[index / 3];
+            if (catalog.findById(dvd[0]).isEmpty()) {
+                addDvd(dvd[0], dvd[1], durationMinutes);
+            }
         }
     }
 

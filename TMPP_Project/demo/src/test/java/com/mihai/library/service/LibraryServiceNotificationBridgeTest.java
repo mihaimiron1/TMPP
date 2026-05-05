@@ -9,6 +9,7 @@ import com.mihai.library.notification.NotificationChannel;
 import com.mihai.library.notification.ReturnLoanNotification;
 import com.mihai.library.repo.Catalog;
 import com.mihai.library.repo.LoanRepository;
+import com.mihai.library.service.penalty.ItemTypePenaltyStrategy;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class LibraryServiceNotificationBridgeTest {
                 loans,
                 new DefaultLoanPolicy(),
                 new BorrowLoanNotification(channel),
-                new ReturnLoanNotification(channel));
+                new ReturnLoanNotification(channel, catalog, new ItemTypePenaltyStrategy()));
 
         service.borrowItem("U1", "B1");
 
@@ -66,13 +67,14 @@ public class LibraryServiceNotificationBridgeTest {
                 loans,
                 new DefaultLoanPolicy(),
                 new BorrowLoanNotification(channel),
-                new ReturnLoanNotification(channel));
+                new ReturnLoanNotification(channel, catalog, new ItemTypePenaltyStrategy()));
 
         service.borrowItem("U1", "B1");
         service.returnItem("B1");
 
         assertEquals(2, channel.messages.size());
         assertTrue(channel.messages.get(1).contains("[U1] Returned item B1"));
+        assertTrue(channel.messages.get(1).contains("penalty 0"));
     }
 
     private static final class CapturingChannel implements NotificationChannel {

@@ -1,6 +1,7 @@
 package com.mihai.library.factory;
 
 import com.mihai.library.service.LoanPolicy;
+import com.mihai.library.service.penalty.PenaltyStrategy;
 
 public interface LibraryAbstractFactory {
     LibraryItemCreator bookCreator();
@@ -11,5 +12,7 @@ public interface LibraryAbstractFactory {
 
     LibraryItemCreator groupCreator();
 
-    LoanPolicy loanPolicy(); // obiect înrudit (familie)
+    LoanPolicy loanPolicy();
+
+    PenaltyStrategy penaltyStrategy();
 }

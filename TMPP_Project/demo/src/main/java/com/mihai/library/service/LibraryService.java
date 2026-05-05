@@ -7,6 +7,8 @@ import com.mihai.library.notification.BorrowLoanNotification;
 import com.mihai.library.notification.LoanNotification;
 import com.mihai.library.notification.NoOpNotificationChannel;
 import com.mihai.library.notification.ReturnLoanNotification;
+import com.mihai.library.observer.LibraryEventPublisher;
+import com.mihai.library.observer.LibraryObserver;
 import com.mihai.library.repo.Catalog;
 import com.mihai.library.repo.LoanRepository;
 import com.mihai.library.service.exceptions.ItemAlreadyLoanedException;
@@ -23,6 +25,7 @@ public final class LibraryService {
     private final LoanPolicy loanPolicy;
     private final LoanNotification borrowNotification;
     private final LoanNotification returnNotification;
+    private final LibraryEventPublisher eventPublisher;
 
     public LibraryService(Catalog catalog, LoanRepository loanRepository, LoanPolicy loanPolicy) {
         this(
@@ -49,6 +52,15 @@ public final class LibraryService {
         this.loanPolicy = loanPolicy;
         this.borrowNotification = borrowNotification;
         this.returnNotification = returnNotification;
+        this.eventPublisher = new LibraryEventPublisher();
+    }
+
+    public void registerObserver(LibraryObserver observer) {
+        eventPublisher.register(observer);
+    }
+
+    public void unregisterObserver(LibraryObserver observer) {
+        eventPublisher.unregister(observer);
     }
 
     public Loan borrowItem(String memberId, String itemId) {
@@ -65,6 +77,7 @@ public final class LibraryService {
         Loan loan = new Loan(UUID.randomUUID().toString(), validatedMemberId, validatedItemId, now, due);
         loanRepository.save(loan);
         borrowNotification.sendForLoan(loan);
+        eventPublisher.notifyItemBorrowed(loan);
         return loan;
     }
 
@@ -76,6 +89,7 @@ public final class LibraryService {
         activeLoan.markReturned(LocalDate.now());
         loanRepository.save(activeLoan);
         returnNotification.sendForLoan(activeLoan);
+        eventPublisher.notifyItemReturned(activeLoan);
         return activeLoan;
     }
 
