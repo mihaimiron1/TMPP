@@ -1,6 +1,8 @@
 
 package com.mihai.library.domain;
 
+import com.mihai.library.visitor.LibraryItemVisitor;
+
 public final class Dvd extends LibraryItem {
     private final int durationMinutes;
 
@@ -31,6 +33,14 @@ public final class Dvd extends LibraryItem {
     @Override
     public String getType() {
         return "DVD";
+    }
+
+    @Override
+    public <R> R accept(LibraryItemVisitor<R> visitor) {
+        if (visitor == null) {
+            throw new IllegalArgumentException("visitor null");
+        }
+        return visitor.visitDvd(this);
     }
 
     @Override

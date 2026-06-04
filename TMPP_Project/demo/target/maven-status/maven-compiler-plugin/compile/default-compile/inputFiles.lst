@@ -31,6 +31,7 @@ D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\repo\InMemoryCata
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\notification\ConsoleNotificationChannel.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\domain\LibraryItemGroup.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\memento\BorrowCartCaretaker.java
+D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\visitor\LibraryItemVisitor.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\factory\StandardLibraryFactory.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\memento\ActiveBorrowCartState.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\service\borrow\ItemAvailabilityHandler.java
@@ -56,6 +57,7 @@ D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\adapter\codec\Bas
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\facade\LibraryFacade.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\iterator\LibraryIterator.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\adapter\codec\LibraryItemRecordCodec.java
+D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\visitor\CatalogStatisticsVisitor.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\adapter\FileLoanRepositoryAdapter.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\service\penalty\ItemTypePenaltyStrategy.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\command\BorrowItemCommand.java
@@ -70,6 +72,7 @@ D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\iterator\CatalogN
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\service\LibraryService.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\notification\LoanNotification.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\factory\LibraryAbstractFactory.java
+D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\visitor\CatalogStatistics.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\domain\ReturnReceipt.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\service\penalty\GracePeriodPenaltyStrategy.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\domain\Book.java
@@ -80,6 +83,7 @@ D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\service\exception
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\iterator\LibraryItemCriteria.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\service\borrow\BaseBorrowHandler.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\adapter\FileCatalogAdapter.java
+D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\visitor\CatalogDescriptionVisitor.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\memento\BorrowCartMemento.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\domain\Loan.java
 D:\repo\TMPP\TMPP_Project\demo\src\main\java\com\mihai\library\domain\Member.java

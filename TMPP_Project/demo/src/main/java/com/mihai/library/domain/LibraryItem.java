@@ -1,5 +1,7 @@
 package com.mihai.library.domain;
 
+import com.mihai.library.visitor.LibraryItemVisitor;
+
 public abstract class LibraryItem implements Prototype<LibraryItem>, Cloneable {
 
     private final String id;
@@ -32,6 +34,8 @@ public abstract class LibraryItem implements Prototype<LibraryItem>, Cloneable {
     }
 
     public abstract String getType();
+
+    public abstract <R> R accept(LibraryItemVisitor<R> visitor);
 
     @Override
     public String toString() {

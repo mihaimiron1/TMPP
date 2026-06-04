@@ -21,6 +21,7 @@ public final class Main {
 
         facade.ensureDemoCatalog();
         printCompositeDemo(facade);
+        printVisitorDemo(facade);
         closeActiveDemoLoans(facade);
         printAvailableBooksByAuthor(facade, "Robert C. Martin");
 
@@ -60,6 +61,14 @@ public final class Main {
         }
 
         throw new IllegalStateException("Expected G1 to be a composite group");
+    }
+
+    private static void printVisitorDemo(LibraryFacade facade) {
+        System.out.println("=== Visitor catalog report ===");
+        System.out.println(facade.catalogStatistics());
+        facade.describeCatalogItems().stream()
+                .limit(5)
+                .forEach(System.out::println);
     }
 
     private static void printAvailableBooksByAuthor(LibraryFacade facade, String author) {
