@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Library — Catalog</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- Navbar -->
+<header class="navbar">
+  <a href="/catalog.html" class="navbar-brand">📚 <span>Library</span></a>
+  <nav class="nav-links">
+    <a href="/catalog.html" class="nav-link active">Catalog</a>
+    <a href="/loans.html"   class="nav-link">My Loans</a>
+  </nav>
+  <div class="nav-user">
+    <span id="user-name"></span>
+    <div class="notif-btn-wrap">
+      <button class="btn btn-outline btn-sm" id="notif-btn" title="Notifications">🔔</button>
+      <span class="notif-count" id="notif-count" style="display:none">0</span>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="logout()">Logout</button>
+  </div>
+</header>
+
+<!-- Notification panel overlay -->
+<div class="overlay" id="overlay"></div>
+
+<!-- Notification panel -->
+<div class="notif-panel" id="notif-panel">
+  <div class="notif-panel-head">
+    <h3>Notifications</h3>
+    <button class="btn btn-ghost btn-sm" id="close-notif">✕</button>
+  </div>
+  <div class="notif-list" id="notif-list">
+    <div class="spinner">Loading…</div>
+  </div>
+</div>
+
+<!-- Filters bar -->
+<div class="filters-bar">
+  <input type="text"    id="search-input" placeholder="🔍  Search by title or author…" class="search-input">
+  <select id="type-filter" class="filter-type">
+    <option value="">All types</option>
+    <option value="BOOK">📚 Books</option>
+    <option value="MAGAZINE">📰 Magazines</option>
+    <option value="DVD">💿 DVDs</option>
+  </select>
+  <input type="text" id="genre-filter" placeholder="Genre…" class="filter-genre">
+  <label class="check-row">
+    <input type="checkbox" id="avail-filter"> Available only
+  </label>
+  <button class="btn btn-primary btn-sm" id="search-btn">Search</button>
+  <button class="btn btn-outline btn-sm" id="undo-btn" title="Undo last search">↩ Undo</button>
+</div>
+
+<!-- Items grid -->
+<div id="items-grid" class="items-grid">
+  <div class="spinner" style="grid-column:1/-1">Loading catalog…</div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/catalog.js"></script>
+</body>
+</html>
